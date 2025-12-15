@@ -5,21 +5,65 @@ echo "=== MLOps Node Bootstrap Started ==="
 
 # 1. Install & Connect Tailscale
 if [ -n "$TAILSCALE_AUTHKEY" ]; then
-    echo "Installing Tailscale..."
+    echo "Installing Tailscale for containers..."
     curl -fsSL https://tailscale.com/install.sh | sh
     
+    # Create required directories
+    mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
+    mkdir -p /workspace/logs
+    
+    echo "Starting Tailscale daemon in userspace mode..."
+    
+    # Start daemon in background with logging
+    nohup tailscaled \
+        --tun=userspace-networking \
+        --socks5-server=localhost:1055 \
+        --state=/var/lib/tailscale/tailscaled.state \
+        --socket=/var/run/tailscale/tailscaled.sock \
+        > /workspace/logs/tailscaled.log 2>&1 &
+    
+    TAILSCALED_PID=$!
+    echo "Tailscaled started with PID: $TAILSCALED_PID"
+    
+    # Wait for daemon to be ready
+    echo "Waiting for daemon to be ready..."
+    for i in {1..30}; do
+        if tailscale status >/dev/null 2>&1; then
+            echo "Daemon ready!"
+            break
+        fi
+        sleep 1
+    done
+    
     echo "Connecting to Tailscale network..."
-    # Use provided hostname or fallback to system hostname
-    TS_HOSTNAME="${TAILSCALE_HOSTNAME:-mlops-$(hostname)}"
-    tailscale up --authkey="$TAILSCALE_AUTHKEY" --ssh --hostname="$TS_HOSTNAME"
+    tailscale up \
+        --authkey="$TAILSCALE_AUTHKEY" \
+        --ssh \
+        --hostname="mlops-$(hostname)" \
+        --accept-routes \
+        --accept-dns=false
     
-    # Wait for connection
+    # Wait for connection to establish
     sleep 5
-    TAILSCALE_IP=$(tailscale ip -4)
-    echo "✓ Tailscale connected: $TAILSCALE_IP"
     
-    # Save IP for later reference
-    echo "$TAILSCALE_IP" > /workspace/.tailscale_ip
+    # Get Tailscale IP
+    TAILSCALE_IP=$(tailscale ip -4 2>/dev/null)
+    
+    if [ -n "$TAILSCALE_IP" ]; then
+        echo "✓ Tailscale connected: $TAILSCALE_IP"
+        echo "$TAILSCALE_IP" > /workspace/.tailscale_ip
+        
+        # Verify connectivity
+        echo "Testing connectivity..."
+        if ping -c 1 $TAILSCALE_IP >/dev/null 2>&1; then
+            echo "✓ Tailscale network is working"
+        else
+            echo "⚠ Warning: Could not ping Tailscale IP"
+        fi
+    else
+        echo "⚠ Warning: Could not get Tailscale IP"
+        echo "Check logs: tail -f /workspace/logs/tailscaled.log"
+    fi
 else
     echo "⚠ No TAILSCALE_AUTHKEY provided, skipping mesh network setup"
 fi
