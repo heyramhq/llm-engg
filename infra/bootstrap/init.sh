@@ -68,6 +68,11 @@ else
     echo "⚠ No TAILSCALE_AUTHKEY provided, skipping mesh network setup"
 fi
 
+# 2. Install common ML dependencies
+echo "Installing Python packages..."
+pip install --upgrade pip
+pip install transformers datasets accelerate bitsandbytes
+pip install wandb tensorboard jupyterlab
 
 # 3. Configure Docker registry access (if credentials provided)
 if [ -n "$GCR_SERVICE_ACCOUNT_JSON" ]; then
@@ -102,14 +107,14 @@ if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
     git config --global user.email "$GIT_USER_EMAIL"
 fi
 
-# # 8. Start Jupyter Lab (accessible via Tailscale)
-# if [ "$START_JUPYTER" = "true" ]; then
-#     echo "Starting Jupyter Lab..."
-#     nohup jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root \
-#         --NotebookApp.token='' --NotebookApp.password='' \
-#         > /workspace/logs/jupyter.log 2>&1 &
-#     echo "✓ Jupyter Lab started on port 8888"
-# fi
+# 8. Start Jupyter Lab (accessible via Tailscale)
+if [ "$START_JUPYTER" = "true" ]; then
+    echo "Starting Jupyter Lab..."
+    nohup jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root \
+        --NotebookApp.token='' --NotebookApp.password='' \
+        > /workspace/logs/jupyter.log 2>&1 &
+    echo "✓ Jupyter Lab started on port 8888"
+fi
 
 # 9. Signal readiness
 echo "=== Bootstrap Complete ==="
