@@ -36,7 +36,7 @@ if [ -n "$TAILSCALE_AUTHKEY" ]; then
     done
     
     echo "Connecting to Tailscale network..."
-    echo "Tailnet hostname: $TAILSCALE_HOSTNAME"
+    echo "TAILSCALE_HOSTNAME: $TAILSCALE_HOSTNAME"
     tailscale up \
         --authkey="$TAILSCALE_AUTHKEY" \
         --ssh \
@@ -72,6 +72,7 @@ fi
 # 2. Install common ML dependencies
 echo "Installing Python packages..."
 pip install --upgrade pip
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 pip install transformers datasets accelerate bitsandbytes
 pip install wandb tensorboard jupyterlab
 
@@ -109,13 +110,13 @@ if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
 fi
 
 # 8. Start Jupyter Lab (accessible via Tailscale)
-if [ "$START_JUPYTER" = "true" ]; then
-    echo "Starting Jupyter Lab..."
-    nohup jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root \
-        --NotebookApp.token='' --NotebookApp.password='' \
-        > /workspace/logs/jupyter.log 2>&1 &
-    echo "✓ Jupyter Lab started on port 8888"
-fi
+
+echo "Starting Jupyter Lab..."
+nohup jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root \
+    --NotebookApp.token='' --NotebookApp.password='' \
+    > /workspace/logs/jupyter.log 2>&1 &
+echo "✓ Jupyter Lab started on port 8888"
+
 
 # 9. Signal readiness
 echo "=== Bootstrap Complete ==="
