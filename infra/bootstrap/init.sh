@@ -65,7 +65,7 @@ if [ -n "$TAILSCALE_AUTHKEY" ]; then
     tailscale up \
         --authkey="$TAILSCALE_AUTHKEY" \
         --ssh \
-        --hostname="mlops-$(hostname)" \
+        --hostname="$TAILSCALE_HOSTNAME.tailnet" \
         --accept-routes \
         --accept-dns=false
     
