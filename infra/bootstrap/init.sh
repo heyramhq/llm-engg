@@ -110,44 +110,44 @@ if [ -n "$DOCKER_USERNAME" ] && [ -n "$DOCKER_PASSWORD" ]; then
     echo "✓ Docker Hub configured"
 fi
 
-# ============================================
-# STEP 4: Setup Rclone for Datasets
-# ============================================
-echo ""
-echo "Installing rclone..."
-curl -s https://rclone.org/install.sh | bash
+# # ============================================
+# # STEP 4: Setup Rclone for Datasets
+# # ============================================
+# echo ""
+# echo "Installing rclone..."
+# curl -s https://rclone.org/install.sh | bash
 
-# Configure rclone for S3
-if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
-    echo "Configuring rclone..."
-    mkdir -p ~/.config/rclone
+# # Configure rclone for S3
+# if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+#     echo "Configuring rclone..."
+#     mkdir -p ~/.config/rclone
 
-    cat > ~/.config/rclone/rclone.conf << EOF
-[s3]
-type = s3
-provider = AWS
-access_key_id = ${AWS_ACCESS_KEY_ID}
-secret_access_key = ${AWS_SECRET_ACCESS_KEY}
-region = us-east-1
-endpoint = ${S3_ENDPOINT:-s3.amazonaws.com}
+#     cat > ~/.config/rclone/rclone.conf << EOF
+# [s3]
+# type = s3
+# provider = AWS
+# access_key_id = ${AWS_ACCESS_KEY_ID}
+# secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+# region = us-east-1
+# endpoint = ${S3_ENDPOINT:-s3.amazonaws.com}
 
-[datasets]
-type = s3
-provider = AWS
-access_key_id = ${AWS_ACCESS_KEY_ID}
-secret_access_key = ${AWS_SECRET_ACCESS_KEY}
-region = us-east-1
-EOF
+# [datasets]
+# type = s3
+# provider = AWS
+# access_key_id = ${AWS_ACCESS_KEY_ID}
+# secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+# region = us-east-1
+# EOF
 
-    # Add bucket if specified
-    if [ -n "$S3_BUCKET_NAME" ]; then
-        echo "bucket = ${S3_BUCKET_NAME}" >> ~/.config/rclone/rclone.conf
-    fi
+#     # Add bucket if specified
+#     if [ -n "$S3_BUCKET_NAME" ]; then
+#         echo "bucket = ${S3_BUCKET_NAME}" >> ~/.config/rclone/rclone.conf
+#     fi
 
-    echo "✓ Rclone configured"
-else
-    echo "⚠ AWS credentials not provided, skipping rclone configuration"
-fi
+#     echo "✓ Rclone configured"
+# else
+#     echo "⚠ AWS credentials not provided, skipping rclone configuration"
+# fi
 
 # ============================================
 # STEP 5: Install ML Dependencies
