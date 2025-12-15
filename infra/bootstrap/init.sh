@@ -36,6 +36,7 @@ if [ -n "$TAILSCALE_AUTHKEY" ]; then
     done
     
     echo "Connecting to Tailscale network..."
+    echo "Tailnet hostname: $TAILSCALE_HOSTNAME"
     tailscale up \
         --authkey="$TAILSCALE_AUTHKEY" \
         --ssh \
