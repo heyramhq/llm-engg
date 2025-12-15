@@ -11,7 +11,7 @@ if [ -n "$TAILSCALE_AUTHKEY" ]; then
     echo "Connecting to Tailscale network..."
     # Use provided hostname or fallback to system hostname
     TS_HOSTNAME="${TAILSCALE_HOSTNAME:-mlops-$(hostname)}"
-    sudo tailscale up --authkey="$TAILSCALE_AUTHKEY" --ssh --hostname="$TS_HOSTNAME"
+    tailscale up --authkey="$TAILSCALE_AUTHKEY" --ssh --hostname="$TS_HOSTNAME"
     
     # Wait for connection
     sleep 5
