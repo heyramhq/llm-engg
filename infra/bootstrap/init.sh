@@ -496,3 +496,13 @@ fi
 echo ""
 echo "✓ Node is ready for ML workloads!"
 echo "======================================================"
+
+# ============================================
+# STEP 17: Keep Container Alive
+# ============================================
+echo ""
+echo "Keeping container alive..."
+echo "Press Ctrl+C to stop (or terminate via RunPod)"
+
+# Keep container running indefinitely
+tail -f /dev/null
